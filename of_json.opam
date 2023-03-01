@@ -17,6 +17,7 @@ depends: [
   "ppx_jane"
   "dune"          {>= "2.0.0"}
 ]
+available: arch != "arm32" & arch != "x86_32"
 synopsis: "A friendly applicative interface for Jsonaf."
 description: "
 This library provides an applicative interface for extracting values from JSON objects with an emphasis on readability and error handling, particularly with nested values.
