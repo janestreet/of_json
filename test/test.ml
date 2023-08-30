@@ -110,8 +110,8 @@ let%expect_test "choice" =
 let%expect_test "errors with alternatives" =
   let of_json =
     int @> Int.to_string
-           <|> bool @> Bool.to_string
-                       <|> list string @> String.concat ~sep:" "
+    <|> bool @> Bool.to_string
+    <|> list string @> String.concat ~sep:" "
   in
   show_raise (fun () -> of_json (`String "foo"));
   [%expect

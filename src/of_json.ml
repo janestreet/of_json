@@ -1,5 +1,4 @@
 open! Core
-
 module Json = Json
 module Timestamp = Timestamp
 module To_json = To_json

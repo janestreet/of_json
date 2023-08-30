@@ -2,7 +2,6 @@ open! Core
 
 type 'a t = 'a -> Json.t
 
-
 let bool b = if b then `True else `False
 
 let float f =

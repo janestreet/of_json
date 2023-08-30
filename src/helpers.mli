@@ -15,7 +15,6 @@ end
 
 exception Of_json_conv_failed of Conv_failure.t
 
-
 (** Wrap a [t] such that if it raises an exception, additional json context information
     will be added to help in debugging *)
 val annotate : ?location:string -> 'a t -> 'a t
@@ -59,7 +58,6 @@ val ( @?? ) : string -> 'a t -> 'a option t
 
 (** Suffix [map] for converting: "foo" @. int @> Satoshi.of_int *)
 val ( @> ) : 'a t -> ('a -> 'b) -> 'b t
-
 
 (** Simple forward composition: int @> Foo.of_int >>> Bar.of_foo *)
 val ( >>> ) : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c
