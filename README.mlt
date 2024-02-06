@@ -41,7 +41,7 @@ module Order :
       size : int;
       price : Price.Fixed.t;
       symbol : Trading_symbol.t;
-      side : Jane_kernel._dir;
+      side : Dir.t;
     }
     val of_json : t Of_json.t
   end
@@ -73,7 +73,8 @@ val order : Order.t =
   {Order.size = 100; price = 12.3400000; symbol = ZVZZT; side = Jane.Dir.Buy}
 |}]
 
-[%%org {|
+[%%org
+  {|
 Note that errors provide context for where the parsing went wrong.
 |}]
 
@@ -193,6 +194,7 @@ let result =
       a, b, c)
 ;;
 
-[%%expect {|
+[%%expect
+  {|
 val result : int * string * bool = (100, "hello", true)
 |}]
