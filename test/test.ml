@@ -42,7 +42,7 @@ let%expect_test "nice exception printing" =
           ],
           "is_a_test": true
         }
-  |}]
+    |}]
 ;;
 
 let%expect_test "errors for missing keys" =
@@ -55,7 +55,8 @@ let%expect_test "errors for missing keys" =
       ("Key not in object" (key baz))
       ("json context [1]" (Object ((bar (String baz)))))
       ("json context [0], at key [foo]" (
-        Object ((foo (Object ((bar (String baz)))))))))) |}]
+        Object ((foo (Object ((bar (String baz))))))))))
+    |}]
 ;;
 
 let%expect_test "errors for bad types" =
@@ -71,7 +72,8 @@ let%expect_test "errors for bad types" =
       ("json context [2]" (String baz))
       ("json context [1], at key [bar]" (Object ((bar (String baz)))))
       ("json context [0], at key [foo]" (
-        Object ((foo (Object ((bar (String baz)))))))))) |}]
+        Object ((foo (Object ((bar (String baz))))))))))
+    |}]
 ;;
 
 let%expect_test "errors in mapping functions" =
@@ -85,7 +87,8 @@ let%expect_test "errors in mapping functions" =
       ("json context [2]" (String baz))
       ("json context [1], at key [bar]" (Object ((bar (String baz)))))
       ("json context [0], at key [foo]" (
-        Object ((foo (Object ((bar (String baz)))))))))) |}]
+        Object ((foo (Object ((bar (String baz))))))))))
+    |}]
 ;;
 
 let%expect_test "safe" =
@@ -131,7 +134,8 @@ let%expect_test "errors with alternatives" =
           "JSON type error"
           (expected array)
           (got      string)))
-        ("branch context" (String foo))))) |}]
+        ("branch context" (String foo)))))
+    |}]
 ;;
 
 let%expect_test "errors in [choice]" =
@@ -161,7 +165,8 @@ let%expect_test "errors in [choice]" =
           "JSON type error"
           (expected array)
           (got      string)))
-        ("branch context" (String foo))))) |}]
+        ("branch context" (String foo)))))
+    |}]
 ;;
 
 let%expect_test "alternative errors in nested json provide correct context" =
@@ -190,7 +195,8 @@ let%expect_test "alternative errors in nested json provide correct context" =
               ("branch context" (String foo)))))
           ("branch context" (Object ((foo (String foo)))))))
         ("json context [0], at key [root]" (
-          Object ((root (Object ((foo (String foo))))))))))) |}]
+          Object ((root (Object ((foo (String foo)))))))))))
+    |}]
 ;;
 
 let%expect_test "tuple" =
@@ -215,7 +221,7 @@ let%expect_test "tuple" =
           (expected array)
           (got      string))
         ("json context [0]" (String foo)))))
-  |}];
+    |}];
   (* Not enough elements *)
   show_raise (fun () -> of_json (`Array (List.take valid 2)));
   [%expect
@@ -228,7 +234,7 @@ let%expect_test "tuple" =
           Array (
             (String foo)
             (Number 10)))))))
-  |}];
+    |}];
   (* Too many elements *)
   show_raise (fun () -> of_json (`Array (valid @ [ `String "extra" ])));
   [%expect
@@ -243,7 +249,7 @@ let%expect_test "tuple" =
             (Number 10)
             (Array (True False))
             (String extra)))))))
-  |}];
+    |}];
   print_s [%sexp (of_json (`Array valid) : string * int * bool list)];
   [%expect {| (foo 10 (true false)) |}]
 ;;
