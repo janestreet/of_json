@@ -39,7 +39,7 @@ module Order :
   sig
     type t = {
       size : int;
-      price : Price.Fixed.t;
+      price : Fixed_price.t;
       symbol : Trading_symbol.t;
       side : Dir.t;
     }
@@ -98,7 +98,8 @@ Exception:
 (helpers.ml.Of_json_conv_failed
   ("Of_json failed to convert"
     (Failure
-       "of_string failed on foo with (Of_sexp_error \"dir.ml.Stable.V1.t_of_sexp: unexpected variant constructor\"\
+       "of_string failed on foo with (Of_sexp_error\
+      \n \"dir.ml.Stable.V1.t_of_sexp: unexpected variant constructor; expected one of Buy Sell\"\
       \n (invalid_sexp foo))")
     ("json context [1]" (String foo))
     ("json context [0], at key [side]"

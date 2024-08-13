@@ -47,7 +47,7 @@ let%expect_test "nice exception printing" =
 
 let%expect_test "errors for missing keys" =
   let json = `Object [ "foo", `Object [ "bar", `String "baz" ] ] in
-  require_does_raise [%here] (fun () -> ("foo" @. "baz" @. string) json);
+  require_does_raise (fun () -> ("foo" @. "baz" @. string) json);
   [%expect
     {|
     (helpers.ml.Of_json_conv_failed (
@@ -61,7 +61,7 @@ let%expect_test "errors for missing keys" =
 
 let%expect_test "errors for bad types" =
   let json = `Object [ "foo", `Object [ "bar", `String "baz" ] ] in
-  require_does_raise [%here] (fun () -> ("foo" @. "bar" @. int) json);
+  require_does_raise (fun () -> ("foo" @. "bar" @. int) json);
   [%expect
     {|
     (helpers.ml.Of_json_conv_failed (
@@ -78,7 +78,7 @@ let%expect_test "errors for bad types" =
 
 let%expect_test "errors in mapping functions" =
   let json = `Object [ "foo", `Object [ "bar", `String "baz" ] ] in
-  require_does_raise [%here] (fun () -> ("foo" @. "bar" @. string @> Int.of_string) json);
+  require_does_raise (fun () -> ("foo" @. "bar" @. string @> Int.of_string) json);
   [%expect
     {|
     (helpers.ml.Of_json_conv_failed (
