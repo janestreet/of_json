@@ -19,8 +19,8 @@ exception Of_json_conv_failed of Conv_failure.t
     will be added to help in debugging *)
 val annotate : ?location:string -> 'a t -> 'a t
 
-(** Pull a value out of an object by key, and use another [t] to reify that. Raises if
-    the key does not exist. *)
+(** Pull a value out of an object by key, and use another [t] to reify that. Raises if the
+    key does not exist. *)
 val using : string -> 'a t -> 'a t
 
 (** Same as [using], except returns an ['a option] in the event the key is missing. If the
@@ -31,14 +31,12 @@ val using_opt : string -> 'a t -> 'a option t
 (* All operators are right-associative, with the exception of forward composition, which
    is an associative operation anyway anyway. *)
 
-(** Operator of [using] for path traversal: "foo" @. "bar" @. int.
-    Raises for non-objects.
-*)
+(** Operator of [using] for path traversal: "foo" \@. "bar" \@. int. Raises for
+    non-objects. *)
 val ( @. ) : string -> 'a t -> 'a t
 
-(** Operator of [using_opt] for path traversal with optional: "foo" @? "bar" @? int.
-    Raises for non-objects.
-*)
+(** Operator of [using_opt] for path traversal with optional: "foo" \@? "bar" \@? int.
+    Raises for non-objects. *)
 val ( @? ) : string -> 'a t -> 'a option t
 
 (** A combination of [using_opt] and [option], to preserve the previous semantics of the
@@ -56,10 +54,10 @@ val ( @? ) : string -> 'a t -> 'a option t
     explicit [Option.join] and a comment and some tests, because that's a crazy thing. *)
 val ( @?? ) : string -> 'a t -> 'a option t
 
-(** Suffix [map] for converting: "foo" @. int @> Satoshi.of_int *)
+(** Suffix [map] for converting: "foo" \@. int \@> Satoshi.of_int *)
 val ( @> ) : 'a t -> ('a -> 'b) -> 'b t
 
-(** Simple forward composition: int @> Foo.of_int >>> Bar.of_foo *)
+(** Simple forward composition: int \@> Foo.of_int >>> Bar.of_foo *)
 val ( >>> ) : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c
 
 (** Simple accessors by type. Will raise if the type does not match *)
@@ -88,9 +86,8 @@ val number_string : string t
 val float_string : float t
 val int_string : int t
 
-(** Iterates over the keys of an object, passing each key to the [~f] provided and
-    running the resulting [t] on the value of that key. Collects all results as a
-    list. *)
+(** Iterates over the keys of an object, passing each key to the [~f] provided and running
+    the resulting [t] on the value of that key. Collects all results as a list. *)
 val map_object : f:(string -> 'a t) -> 'a list t
 
 (** [safe t] runs a generic [t] but returns an option instead of an exception *)
@@ -99,8 +96,8 @@ val safe : 'a t -> 'a option t
 (** [a <|> b] first runs [a], and if it fails, it runs [b]. Will raise if [b] raises. *)
 val ( <|> ) : 'a t -> 'a t -> 'a t
 
-(** [choice [a; b; c]] returns the first parser that succeeds, or raises with the last
-    if all raise. *)
+(** [choice [a; b; c]] returns the first parser that succeeds, or raises with the last if
+    all raise. *)
 val choice : 'a t list -> 'a t
 
 (** A sexp embedded in a JSON string. *)
@@ -115,14 +112,17 @@ module Array_as_tuple : sig
         let of_json =
           let open Of_json.Let_syntax in
           let%map_open parsed =
-            "key" @. tuple Array_as_tuple.(
-              [%map
-                let a = shift @@ string
-                and b = shift @@ number @> Int.of_string
-                in (a, b)])
-          in parsed
-      ]}
-  *)
+            "key"
+            @. tuple
+                 Array_as_tuple.(
+                   [%map
+                     let a = shift @@ string
+                     and b = shift @@ number @> Int.of_string in
+                     a, b])
+          in
+          parsed
+        ;;
+      ]} *)
   type 'a t
 
   (** Wrap your normal [Of_json] combinators with [shift] to have them operate on the head

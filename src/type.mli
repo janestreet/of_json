@@ -1,6 +1,5 @@
-(** An exposed reader monad that allows you to write pretty terse json
-    reification functions with extra exception wrapping to add much-needed
-    context to errors. *)
+(** An exposed reader monad that allows you to write pretty terse json reification
+    functions with extra exception wrapping to add much-needed context to errors. *)
 
 open! Core
 
