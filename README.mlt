@@ -13,35 +13,58 @@ A typical use case:
 #verbose true
 
 open Core
-open Jane
 
-module Order = struct
+module Species = struct
   type t =
-    { size : int
-    ; price : Price.Fixed.t
-    ; symbol : Trading_symbol.t
-    ; side : Dir.t
+    | Capybara
+    | Dog
+    | Cat
+  [@@deriving of_string]
+end
+
+module Kg = struct
+  type t = Bignum.t
+
+  let of_string = Bignum.of_string
+end
+
+module Years = struct
+  type t = int
+
+  let of_int = Fn.id
+end
+
+module Animal = struct
+  type t =
+    { weight : Kg.t
+    ; age : Years.t
+    ; species : Species.t
+    ; name : string
     }
 
   let of_json =
     [%map_open.Of_json
-      let size = "size" @. int
-      and price = "price" @. number @> Price.Fixed.of_string
-      and symbol = "symbol" @. string @> Trading_symbol.of_string
-      and side = "side" @. string @> Dir.of_string in
-      { size; price; symbol; side }]
+      let weight = "weight" @. number @> Kg.of_string
+      and age = "age" @. int @> Years.of_int
+      and species = "species" @. string @> Species.of_string
+      and name = "name" @. string in
+      { weight; age; species; name }]
   ;;
 end
 
 [%%expect
   {|
-module Order :
+module Species :
+  sig type t = Capybara | Dog | Cat val of_string : string -> t end
+module Kg : sig type t = Bignum.t val of_string : string -> t end
+module Years : sig type t = int val of_int : 'a -> 'a end
+module Animal :
   sig
     type t = {
-      size : int;
-      price : Fixed_price.t;
-      symbol : Trading_symbol.t;
-      side : Dir.t;
+      weight : Kg.t;
+      age : int;
+      species : Species.t;
+      name : string;
     }
     val of_json : t Of_json.t
   end
@@ -57,20 +80,21 @@ let order =
   Jsonaf.parse
     {|
       {
-        "size": 100,
-        "price": 12.34,
-        "symbol": "ZVZZT",
-        "side": "buy"
+        "weight": 42.31,
+        "age": 2,
+        "species": "Capybara",
+        "name": "John Smith"
       }
     |}
   |> Or_error.ok_exn
-  |> Order.of_json
+  |> Animal.of_json
 ;;
 
 [%%expect
   {|
-val order : Order.t =
-  {Order.size = 100; price = 12.3400000; symbol = ZVZZT; side = Jane.Dir.Buy}
+val order : Animal.t =
+  {Animal.weight = 42.31; age = 2; species = Species.Capybara;
+   name = "John Smith"}
 |}]
 
 [%%org
@@ -81,15 +105,15 @@ Note that errors provide context for where the parsing went wrong.
 let order =
   Jsonaf.parse
     {|
-      {
-        "size": 100,
-        "price": 12.34,
-        "symbol": "ZVZZT",
-        "side": "foo"
-      }
+    {
+      "weight": 5.1234,
+      "age": 5,
+      "species": "Mr. Whiskers",
+      "name": "Cat"
+    }
     |}
   |> Or_error.ok_exn
-  |> Order.of_json
+  |> Animal.of_json
 ;;
 
 [%%expect
@@ -97,15 +121,12 @@ let order =
 Exception:
 (helpers.ml.Of_json_conv_failed
   ("Of_json failed to convert"
-    (Failure
-       "of_string failed on foo with (Of_sexp_error\
-      \n \"dir.ml.Stable.V1.t_of_sexp: unexpected variant constructor; expected one of Buy Sell\"\
-      \n (invalid_sexp foo))")
-    ("json context [1]" (String foo))
-    ("json context [0], at key [side]"
+    ("README.Species.of_string: invalid string" (value "Mr. Whiskers"))
+    ("json context [1]" (String "Mr. Whiskers"))
+    ("json context [0], at key [species]"
       (Object
-        ((size (Number 100)) (price (Number 12.34)) (symbol (String ZVZZT))
-          (side (String foo)))))))
+        ((weight (Number 5.1234)) (age (Number 5))
+          (species (String "Mr. Whiskers")) (name (String Cat)))))))
 |}]
 
 [%%org
@@ -118,18 +139,18 @@ densly, particularly in websockets where there is no compression. You can use
 
 #verbose false
 
-module Websocket_order = struct
-  type t = Order.t
+module Websocket_animal = struct
+  type t = Animal.t
 
   let of_json =
     let open Of_json in
     tuple
       Array_as_tuple.(
-        let%map size = shift @@ int
-        and price = shift @@ number @> Price.Fixed.of_string
-        and symbol = shift @@ string @> Trading_symbol.of_string
-        and side = shift @@ string @> Dir.of_string in
-        { Order.size; price; symbol; side })
+        let%map weight = shift @@ number @> Kg.of_string
+        and age = shift @@ int @> Years.of_int
+        and species = shift @@ string @> Species.of_string
+        and name = shift @@ string in
+        { Animal.weight; age; species; name })
   ;;
 end
 ;;
@@ -137,15 +158,15 @@ end
 #verbose true
 
 let order =
-  Jsonaf.parse {| [100, 12.34, "ZVZZT", "buy"] |}
+  Jsonaf.parse {| [12.34, 7, "Dog", "Fluffy"] |}
   |> Or_error.ok_exn
-  |> Websocket_order.of_json
+  |> Websocket_animal.of_json
 ;;
 
 [%%expect
   {|
-val order : Websocket_order.t =
-  {Order.size = 100; price = 12.3400000; symbol = ZVZZT; side = Jane.Dir.Buy}
+val order : Websocket_animal.t =
+  {Animal.weight = 12.34; age = 7; species = Species.Dog; name = "Fluffy"}
 |}]
 
 [%%org
