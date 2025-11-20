@@ -4,7 +4,7 @@ module Float_ms_since_epoch : sig
   (** JSON representation is a floating-point number of milliseconds since epoch. *)
   type t = Time_ns.t [@@deriving sexp]
 
-  (* Per https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html,
+  (*=Per https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html,
 
      > JSON doesn't have a date datatype, so dates in Elasticsearch can either be:
 
