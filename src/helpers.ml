@@ -108,7 +108,8 @@ module Conv_failure = struct
   let extract_exn { exn; _ } = exn
 end
 
-exception Of_json_conv_failed of Conv_failure.t [@@deriving sexp]
+exception Of_json_conv_failed of Conv_failure.t
+[@@deriving sexp ~nonportable__magic_unsafe_in_parallel_programs]
 
 let reraise exn ~context =
   match exn with
@@ -207,7 +208,8 @@ module Alternative_error = struct
   ;;
 end
 
-exception Alternative_error of Alternative_error.t [@@deriving sexp]
+exception Alternative_error of Alternative_error.t
+[@@deriving sexp ~nonportable__magic_unsafe_in_parallel_programs]
 
 let combined_exns exn1 exn2 ~context =
   let conv_exn = function
