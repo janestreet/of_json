@@ -47,7 +47,25 @@ let as_number = function
 let as_int json =
   let number = as_number json in
   try Int.of_string number with
-  | exn -> raise_s [%message "Json.as_int: unable to convert number to int" (exn : exn)]
+  | _exn ->
+    (* JSON does not have a definition of integers in itself. However, JSON schema (used
+       to impose structure on JSON documents) defines "integer" as "any number with a zero
+       fractional part". This means all of the following should be considered integers:
+
+       - [0] (obvious)
+       - [1.0] (equal to [1])
+       - [2.1e1] (equal to [21])
+
+       Using [Float.is_integer] should at least approximate this behavior. (We still try
+       [Int.of_string] first to avoid float precision issues at high values if possible.)
+    *)
+    let number =
+      try Float.of_string number with
+      | exn -> raise_s [%message "Json.as_int: unable to parse number" (exn : exn)]
+    in
+    (match Float.is_integer number with
+     | false -> raise_s [%message "Json.as_int: number had non-zero fractional part"]
+     | true -> Float.iround_towards_zero_exn number)
 ;;
 
 let as_float json =

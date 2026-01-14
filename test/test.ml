@@ -264,3 +264,19 @@ let%expect_test "floats to string" =
   test_float_to_string 1.34;
   [%expect {| (Number 1.34) |}]
 ;;
+
+let%expect_test "exotic integers" =
+  let test json =
+    let x = Of_json.(safe int) json in
+    print_s ([%sexp_of: int option] x)
+  in
+  test (`Number "1");
+  [%expect {| (1) |}];
+  test (`Number "1.0");
+  [%expect {| (1) |}];
+  test (`Number "-1.3107E+5");
+  [%expect {| (-131070) |}];
+  test (`Number "5.6");
+  [%expect {| () |}];
+  ()
+;;

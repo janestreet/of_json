@@ -1,1 +1,1 @@
-module Test = Test
+(* Intentionally blank. *)
