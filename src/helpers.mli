@@ -28,14 +28,18 @@ val using : string -> 'a t -> 'a t
     value might be null, you probably want [option] instead. *)
 val using_opt : string -> 'a t -> 'a option t
 
+(** [using_safe key t] is similar to [using_opt key t] but if the inner [t] fails to
+    parse, it evaluates to [None] instead of bubbling up the error. This should perform
+    better than [safe (using key t)], especially in the case that the key is missing. *)
+val using_safe : string -> 'a t -> 'a option t
+
 (* All operators are right-associative, with the exception of forward composition, which
    is an associative operation anyway anyway. *)
 
-(** Operator of [using] for path traversal: "foo" \@. "bar" \@. int. Raises for
-    non-objects. *)
+(** Operator of [using] for path traversal: "foo" @. "bar" @. int. Raises for non-objects. *)
 val ( @. ) : string -> 'a t -> 'a t
 
-(** Operator of [using_opt] for path traversal with optional: "foo" \@? "bar" \@? int.
+(** Operator of [using_opt] for path traversal with optional: "foo" @? "bar" @? int.
     Raises for non-objects. *)
 val ( @? ) : string -> 'a t -> 'a option t
 
@@ -54,10 +58,10 @@ val ( @? ) : string -> 'a t -> 'a option t
     explicit [Option.join] and a comment and some tests, because that's a crazy thing. *)
 val ( @?? ) : string -> 'a t -> 'a option t
 
-(** Suffix [map] for converting: "foo" \@. int \@> Satoshi.of_int *)
+(** Suffix [map] for converting: "foo" @. int @> Satoshi.of_int *)
 val ( @> ) : 'a t -> ('a -> 'b) -> 'b t
 
-(** Simple forward composition: int \@> Foo.of_int >>> Bar.of_foo *)
+(** Simple forward composition: int @> Foo.of_int >>> Bar.of_foo *)
 val ( >>> ) : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c
 
 (** Simple accessors by type. Will raise if the type does not match *)

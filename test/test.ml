@@ -280,3 +280,53 @@ let%expect_test "exotic integers" =
   [%expect {| () |}];
   ()
 ;;
+
+let%expect_test "using variants" =
+  let json = ref (`Object [ "n", `Number "1.5" ]) in
+  let test t sexp_of =
+    try print_s (sexp_of (Of_json.run t !json)) with
+    | _exn -> printf "Raised!"
+  in
+  test Of_json.(using "missing" float) [%sexp_of: float];
+  [%expect {| Raised! |}];
+  test Of_json.(using_opt "missing" float) [%sexp_of: float option];
+  [%expect {| () |}];
+  test Of_json.(using "missing" (safe float)) [%sexp_of: float option];
+  [%expect {| Raised! |}];
+  test Of_json.(safe (using "missing" float)) [%sexp_of: float option];
+  [%expect {| () |}];
+  test Of_json.(using_safe "missing" float) [%sexp_of: float option];
+  [%expect {| () |}];
+  test Of_json.(using "n" float) [%sexp_of: float];
+  [%expect {| 1.5 |}];
+  test Of_json.(using_opt "n" float) [%sexp_of: float option];
+  [%expect {| (1.5) |}];
+  test Of_json.(using "n" (safe float)) [%sexp_of: float option];
+  [%expect {| (1.5) |}];
+  test Of_json.(safe (using "n" float)) [%sexp_of: float option];
+  [%expect {| (1.5) |}];
+  test Of_json.(using_safe "n" float) [%sexp_of: float option];
+  [%expect {| (1.5) |}];
+  test Of_json.(using "n" int) [%sexp_of: int];
+  [%expect {| Raised! |}];
+  test Of_json.(using_opt "n" int) [%sexp_of: int option];
+  [%expect {| Raised! |}];
+  test Of_json.(using "n" (safe int)) [%sexp_of: int option];
+  [%expect {| () |}];
+  test Of_json.(safe (using "n" int)) [%sexp_of: int option];
+  [%expect {| () |}];
+  test Of_json.(using_safe "n" int) [%sexp_of: int option];
+  [%expect {| () |}];
+  (* And now a non-object *)
+  json := `Array [];
+  test Of_json.(using "missing" float) [%sexp_of: float];
+  [%expect {| Raised! |}];
+  test Of_json.(using_opt "missing" float) [%sexp_of: float option];
+  [%expect {| Raised! |}];
+  test Of_json.(using "missing" (safe float)) [%sexp_of: float option];
+  [%expect {| Raised! |}];
+  test Of_json.(safe (using "missing" float)) [%sexp_of: float option];
+  [%expect {| () |}];
+  test Of_json.(using_safe "missing" float) [%sexp_of: float option];
+  [%expect {| () |}]
+;;
