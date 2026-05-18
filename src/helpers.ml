@@ -164,6 +164,19 @@ let safe t json =
   | _ex -> None
 ;;
 
+let using_safe key t : _ t =
+  let safe_t = safe t in
+  let f json =
+    match json with
+    | `Object _ ->
+      (match lookup key json with
+       | None -> None
+       | Some json -> run safe_t json)
+    | _ -> None
+  in
+  f
+;;
+
 module Alternative_error = struct
   module Context = Conv_failure.Context
 
