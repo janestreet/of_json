@@ -193,7 +193,7 @@ let result =
 
 [%%expect
   {|
-val parse_array : (Jsonaf_kernel.t -> 'a) -> 'a = <fun>
+val parse_array : (Jsonaf.t -> 'a) -> 'a = <fun>
 Exception:
 (helpers.ml.Of_json_conv_failed
   ("Of_json failed to convert"

@@ -91,6 +91,45 @@ let%expect_test "errors in mapping functions" =
     |}]
 ;;
 
+let%expect_test "[list] and [option] add one context, whichever part fails" =
+  require_does_raise (fun () -> ("foo" @. list int) (`Object [ "foo", `String "bar" ]));
+  [%expect
+    {|
+    (helpers.ml.Of_json_conv_failed (
+      "Of_json failed to convert"
+      ("JSON type error"
+        (expected array)
+        (got      string))
+      ("json context [1]" (String bar))
+      ("json context [0], at key [foo]" (Object ((foo (String bar)))))))
+    |}];
+  require_does_raise (fun () -> list int (`Array [ `Number "1"; `String "two" ]));
+  [%expect
+    {|
+    (helpers.ml.Of_json_conv_failed (
+      "Of_json failed to convert"
+      ("JSON type error"
+        (expected number)
+        (got      string))
+      ("json context [1]" (String two))
+      ("json context [0]" (
+        Array (
+          (Number 1)
+          (String two))))))
+    |}];
+  require_does_raise (fun () -> option int (`String "one"));
+  [%expect
+    {|
+    (helpers.ml.Of_json_conv_failed (
+      "Of_json failed to convert"
+      ("JSON type error"
+        (expected number)
+        (got      string))
+      ("json context [1]" (String one))
+      ("json context [0]" (String one))))
+    |}]
+;;
+
 let%expect_test "safe" =
   print_s [%sexp (safe int (`String "foo") : int option)];
   [%expect {| () |}];

@@ -1,16 +1,19 @@
+@@ portable
+
 open! Core
 open Type
 
-module Conv_failure : sig
-  type t
+module (Conv_failure @@ nonportable) : sig
+  type t : value mod contended portable
 
-  (** [to_string_hum] returns the JSON context stack as a string that reads well if
-      printed directly. That string cannot be used as a sexp atom: the backslash-escaping
-      would render it illegible. *)
   val to_string_hum : t -> string
+  [@@ocaml.doc
+    {| [to_string_hum] returns the JSON context stack as a string that reads well if
+        printed directly. That string cannot be used as a sexp atom: the
+        backslash-escaping would render it illegible. |}]
 
   (** [extract_exn] returns the exception that caused the failure *)
-  val extract_exn : t -> exn
+  val extract_exn : t -> exn @@ portable
 end
 
 exception Of_json_conv_failed of Conv_failure.t
@@ -131,7 +134,7 @@ module Array_as_tuple : sig
 
   (** Wrap your normal [Of_json] combinators with [shift] to have them operate on the head
       of the list element, passing the tail on to the next combinator. Build up a [t] by
-      combining these with [apply] or [bind]. *)
+      combining these with [Let_syntax]. *)
   val shift : 'a Type.t -> 'a t
 
   val drop_rest : unit t

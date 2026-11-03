@@ -12,5 +12,5 @@ module T = struct
 end
 
 include T
-include Applicative.Make (T)
-include (Monad.Make (T) : Monad.S_without_syntax with type 'a t := 'a t)
+include Applicative.Make [@modality portable] (T)
+include Monad.Make [@modality portable] (T)

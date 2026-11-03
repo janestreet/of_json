@@ -2,11 +2,11 @@ open Core
 open Type
 
 module Context_stack : sig
-  (* A [Context_stack] is a nonempty accumulator that supports traversal in insertion
-     order. Its semantics fit the way raising through a series of exception handlers
-     constructs a stack by slipping things under the bottom. *)
-
-  type 'a t
+  @@ portable
+     (* A [Context_stack] is a nonempty accumulator that supports traversal in insertion
+        order. Its semantics fit the way raising through a series of exception handlers
+        constructs a stack by slipping things under the bottom. *)
+  type 'a t : immutable_data with 'a
 
   val singleton : 'a -> 'a t
   val add_caller : 'a t -> 'a -> 'a t
@@ -108,8 +108,7 @@ module Conv_failure = struct
   let extract_exn { exn; _ } = exn
 end
 
-exception Of_json_conv_failed of Conv_failure.t
-[@@deriving sexp ~nonportable__magic_unsafe_in_parallel_programs]
+exception Of_json_conv_failed of Conv_failure.t [@@deriving sexp]
 
 let reraise exn ~context =
   match exn with
@@ -221,8 +220,7 @@ module Alternative_error = struct
   ;;
 end
 
-exception Alternative_error of Alternative_error.t
-[@@deriving sexp ~nonportable__magic_unsafe_in_parallel_programs]
+exception Alternative_error of Alternative_error.t [@@deriving sexp]
 
 let combined_exns exn1 exn2 ~context =
   let conv_exn = function
@@ -254,21 +252,21 @@ let ( @? ) = using_opt
 let ( @> ) t f = annotated_map t ~f
 let ( >>> ) a b = Fn.compose b a
 let json = Fn.id
-let int = annotate Json.as_int
-let float = annotate Json.as_float
-let number = annotate Json.as_number
-let string = annotate Json.as_string
-let bool = annotate Json.as_bool
-let list t = annotate (Json.as_list @> List.map ~f:(run t))
-let option t = annotate (Json.as_option @> Option.map ~f:(run t))
+let int = [%eta1 annotate Json.as_int]
+let float = [%eta1 annotate Json.as_float]
+let number = [%eta1 annotate Json.as_number]
+let string = [%eta1 annotate Json.as_string]
+let bool = [%eta1 annotate Json.as_bool]
+let list t = annotate (Json.as_list >>> List.map ~f:(run t))
+let option t = annotate (Json.as_option >>> Option.map ~f:(run t))
 let ( @?? ) key t = using_opt key (option t) @> Option.join
 let as_sexp of_sexp = string @> (Sexp.of_string >>> of_sexp)
 
 (** These are for sloppy APIs which sometimes double quotes values. *)
-let number_string = annotate (Json.as_number <|> Json.as_string)
+let number_string = [%eta1 annotate (Json.as_number <|> Json.as_string)]
 
-let float_string = number_string @> Float.of_string
-let int_string = number_string @> Int.of_string
+let float_string = [%eta1 number_string @> Float.of_string]
+let int_string = [%eta1 number_string @> Int.of_string]
 
 module Array_as_tuple = struct
   module T = struct
@@ -288,17 +286,14 @@ module Array_as_tuple = struct
       f x, jsons
     ;;
 
-    let apply af ax = bind af ~f:(fun f -> map ax ~f)
     let map = `Custom map
   end
 
   include T
-  include Applicative.Make (T)
 
   (* This module is supposed to be used in an inline open, so we have to do some
      functor/signature dance to get the correct [Let_syntax] module out. *)
-  module M = Monad.Make (T)
-  include (M : Monad.S_without_syntax with type 'a t := 'a t)
+  module M = Monad.Make [@modality portable] (T)
   module Let_syntax = M.Let_syntax.Let_syntax
 
   let run_exhaustively (t : 'a t) jsons : 'a =

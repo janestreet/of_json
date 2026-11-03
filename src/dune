@@ -3,4 +3,4 @@
  (public_name of_json)
  (libraries core_extended.appendable_list core jsonaf)
  (preprocess
-  (pps ppx_jane)))
+  (pps ppx_jane -compare-require-explicit-locality)))
