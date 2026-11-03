@@ -13,4 +13,4 @@ end
 
 include T
 include Applicative.Make (T)
-include (Monad.Make (T) : Monad.S_without_syntax with type 'a t := 'a t)
+include Monad.Make (T)
